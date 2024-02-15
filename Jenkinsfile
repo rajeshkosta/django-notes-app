@@ -1,35 +1,39 @@
-pipeline {
-    agent any 
+pipeline{
+    agent any
     
     stages{
-        stage("Clone Code"){
-            steps {
-                echo "Cloning the code"
-                git url:"https://github.com/LondheShubham153/django-notes-app.git", branch: "main"
+        
+        stage("code"){
+            steps{
+                echo "cloning the code"
+                git url:"https://github.com/rajeshkosta/django-notes-app.git"
             }
+            
         }
-        stage("Build"){
-            steps {
-                echo "Building the image"
-                sh "docker build -t my-note-app ."
+        stage("build"){
+            steps{
+                echo "build the image"
+                sh "docker build -t jangoimage ."
             }
+            
         }
-        stage("Push to Docker Hub"){
-            steps {
-                echo "Pushing the image to docker hub"
-                withCredentials([usernamePassword(credentialsId:"dockerHub",passwordVariable:"dockerHubPass",usernameVariable:"dockerHubUser")]){
-                sh "docker tag my-note-app ${env.dockerHubUser}/my-note-app:latest"
-                sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPass}"
-                sh "docker push ${env.dockerHubUser}/my-note-app:latest"
+        stage("push docker"){
+            steps{
+                echo "push to dockerhub"
+                withCredentials([usernamePassword(credentialsId:'shivani', usernameVariable:'shivaniuser',passwordVariable:'shivanipass')]){
+                    sh "docker tag jangoimage ${env.shivaniuser}/jangoimage:latest" 
+                    sh "docker login -u ${env.shivaniuser} -p ${env.shivanipass}"
+                    sh "docker push  ${env.shivaniuser}/jangoimage:latest "
                 }
             }
+            
         }
-        stage("Deploy"){
-            steps {
-                echo "Deploying the container"
+        stage("run container"){
+            steps{
+                echo "run the container"
                 sh "docker-compose down && docker-compose up -d"
-                
             }
+            
         }
     }
 }
